@@ -1,8 +1,9 @@
 <div align="center">
-  
+  <img src="docs/images/logo.png" width="120" height="120" alt="TicketForge Logo">
   
   # TicketForge: Event Ticket Platform
   
+  ![TicketForge Hero Banner](docs/images/banner.png)
 
   [![Java Version](https://img.shields.io/badge/Java-21-orange.svg?style=for-the-badge&logo=openjdk)](https://openjdk.org/)
   [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.2-brightgreen.svg?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
@@ -19,14 +20,14 @@
 ## 📖 Table of Contents
 
 - [🚀 Overview](#-overview)
-- [✨ Key Features](#-key-features)
-- [🛠 Tech Stack](#-tech-stack)
 - [🏗 System Architecture](#-system-architecture)
 - [🔄 User & Interaction flows](#-user--interaction-flows)
 - [📊 Data Model](#-data-model)
+- [🛠 Tech Stack](#-tech-stack)
 - [🛡 Security Architecture](#-security-architecture)
 - [🔌 API Reference](#-api-reference)
 - [🚦 Getting Started](#-getting-started)
+- [✨ Key Features](#-key-features)
 - [❓ FAQ & Interview Questions](#-faq--interview-questions)
 
 ---
@@ -39,36 +40,6 @@
 - **High Concurrency**: Uses pessimistic locking to ensure tickets are never oversold.
 - **Enterprise Security**: Integrated with Keycloak for robust JWT-based OIDC authentication.
 - **Developer Friendly**: Clean architecture, automated DTO mapping with MapStruct, and comprehensive API documentation.
-
-## ✨ Key Features
-
-- **📅 Event Lifecycle Management**: Complete control for organizers to create, publish, and manage events.
-- **🔍 Intelligent Discovery**: Public API for searching and filtering published events with PostgreSQL full-text search.
-- **🎟️ Atomic Ticket Purchase**: High-integrity ticketing system with pessimistic locking to prevent overselling.
-- **🖼️ QR Code Integration**: Automatic generation and retrieval of QR codes for secure venue entry.
-- **✅ Multi-mode Validation**: Support for both manual ID entry and high-speed QR code scanning.
-- **🔐 Enterprise Security**: Integrated user provisioning and JWT validation via Keycloak.
-
----
-
-## 🛠 Tech Stack
-
-### 🚀 Core Backend
-- **Java 21**: Leveraging the latest LTS features.
-- **Spring Boot 4.0.2**: The foundation of our micro-framework.
-- **Spring Data JPA**: Efficient database access with Hibernate.
-- **PostgreSQL**: Reliable relational data storage.
-
-### 🛡 Security & Auth
-- **Spring Security**: Robust resource server configuration.
-- **Keycloak**: Leading open-source Identity and Access Management.
-- **OAuth2 / JWT**: Standardized token-based authentication.
-
-### 🧰 Utilities & Tools
-- **MapStruct**: High-performance, type-safe bean mapping.
-- **Lombok**: Reduced boilerplate for cleaner code.
-- **ZXing**: Trusted library for barcode and QR code processing.
-- **Docker**: Containerized environment for Postgres, Adminer, and Keycloak.
 
 ---
 
@@ -110,7 +81,7 @@ sequenceDiagram
     participant USR as UserRepository
     participant TT as TicketTypeRepository
     participant TR as TicketRepository
-    participant QR as QrCodeService/QrCodeRepository
+    participant QR as "QrCodeService/QrCodeRepository"
     participant S as Staff Client
     participant TV as TicketValidationService
     participant TVR as TicketValidationRepository
@@ -165,20 +136,6 @@ flowchart TD
     end
 ```
 
-### 🎟️ User Purchase Flow
-The journey from discovery to venue entry.
-
-```mermaid
-flowchart TD
-    A[View Catalog] --> B[GET /api/v1/published-events]
-    B --> C[Log in & Get JWT]
-    C --> D[POST /api/v1/.../tickets]
-    D --> E[Ticket: PURCHASED]
-    E --> F[Generate QR Code]
-    F --> G[GET /api/v1/tickets]
-    G --> H[Present QR at Venue]
-```
-
 ---
 
 ## 📊 Data Model
@@ -210,11 +167,16 @@ classDiagram
         UUID id
         TicketStatusEnum status
     }
+    
+    class QrCode {
+        UUID id
+        String code
+    }
 
     User "1" --> "0..*" Event : organizes
     Event "1" --> "0..*" TicketType : has
     TicketType "1" --> "0..*" Ticket : produces
-    User "1" --> "0..*" Ticket : purchases
+    User "1" --> "1" Ticket : purchases
     Ticket "1" --> "1" QrCode : links
 ```
 
@@ -242,7 +204,51 @@ erDiagram
         uuid id PK
         string status
     }
+    TICKET_TYPES {
+        uuid id PK
+        double price
+    }
+    QR_CODES {
+        uuid id PK
+        string code
+    }
+    TICKET_VALIDATIONS {
+        uuid id PK
+        string status
+    }
 ```
+
+---
+
+## 🛠 Tech Stack
+
+### 🚀 Core Backend
+- **Java 21**: Leveraging the latest LTS features.
+- **Spring Boot 4.0.2**: The foundation of our micro-framework.
+- **Spring Data JPA**: Efficient database access with Hibernate.
+- **PostgreSQL**: Reliable relational data storage.
+
+### 🛡 Security & Auth
+- **Spring Security**: Robust resource server configuration.
+- **Keycloak**: Leading open-source Identity and Access Management.
+- **OAuth2 / JWT**: Standardized token-based authentication.
+
+### 🧰 Utilities & Tools
+- **MapStruct**: High-performance, type-safe bean mapping.
+- **Lombok**: Reduced boilerplate for cleaner code.
+- **ZXing**: Trusted library for barcode and QR code processing.
+- **Docker**: Containerized environment for Postgres, Adminer, and Keycloak.
+
+---
+
+## ✨ Key Features
+
+- **📅 Event Lifecycle Management**: Complete control for organizers to create, publish, and manage events.
+- **🔍 Intelligent Discovery**: Public API for searching and filtering published events with PostgreSQL full-text search.
+- **🎟️ Atomic Ticket Purchase**: High-integrity ticketing system with pessimistic locking to prevent overselling.
+- **🖼️ QR Code Integration**: Automatic generation and retrieval of QR codes for secure venue entry.
+- **✅ Multi-mode Validation**: Support for both manual ID entry and high-speed QR code scanning.
+- **🔐 Enterprise Security**: Integrated user provisioning and JWT validation via Keycloak.
 
 ---
 
