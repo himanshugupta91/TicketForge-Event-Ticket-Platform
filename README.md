@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="docs/images/logo.png" width="120" height="120" alt="TicketForge Logo">
+  
   
   # TicketForge: Event Ticket Platform
   
-  ![TicketForge Hero Banner](docs/images/banner.png)
+  
 
   [![Java Version](https://img.shields.io/badge/Java-21-orange.svg?style=for-the-badge&logo=openjdk)](https://openjdk.org/)
   [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.2-brightgreen.svg?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
