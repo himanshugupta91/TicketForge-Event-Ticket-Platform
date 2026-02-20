@@ -1,9 +1,8 @@
 <div align="center">
-  <img src="/Users/himanshu/.gemini/antigravity/brain/976bf2b1-12d8-4e66-820a-45477530e119/ticketforge_logo_1771586584830.png" width="120" height="120" alt="TicketForge Logo">
+  
   
   # TicketForge: Event Ticket Platform
   
-  ![TicketForge Hero Banner](/Users/himanshu/.gemini/antigravity/brain/976bf2b1-12d8-4e66-820a-45477530e119/ticketforge_banner_1771586569531.png)
 
   [![Java Version](https://img.shields.io/badge/Java-21-orange.svg?style=for-the-badge&logo=openjdk)](https://openjdk.org/)
   [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.2-brightgreen.svg?style=for-the-badge&logo=springboot)](https://spring.io/projects/spring-boot)
