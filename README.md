@@ -118,24 +118,21 @@ The system follows a modern Resource Server architecture where Keycloak acts as 
 
 ```mermaid
 flowchart LR
-    %% Defining Styles
-    classDef client fill:#2a9d8f,stroke:#264653,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-    classDef idp fill:#e76f51,stroke:#264653,stroke-width:2px,color:#fff,rx:8px,ry:8px;
-    classDef api fill:#e9c46a,stroke:#264653,stroke-width:2px,color:#000,rx:8px,ry:8px;
-    classDef db fill:#f4a261,stroke:#264653,stroke-width:2px,color:#000,rx:8px,ry:8px;
+    style C fill:#2a9d8f,stroke:#264653,stroke-width:2px,color:#fff
+    style K fill:#e76f51,stroke:#264653,stroke-width:2px,color:#fff
+    style A fill:#e9c46a,stroke:#264653,stroke-width:2px,color:#000
+    style D fill:#f4a261,stroke:#264653,stroke-width:2px,color:#000
 
-    %% Nodes
-    C["📱 Client Apps<br/><small>(Web / Mobile / Scanner)</small>"]:::client
-    K["🔐 Keycloak<br/><small>(OIDC Provider)</small>"]:::idp
-    A["⚙️ TicketForge API<br/><small>(Spring Boot)</small>"]:::api
-    D[("🗄️ PostgreSQL<br/><small>(Database)</small>")]+:::db
+    C[📱 Client Apps<br/>Web / Mobile / Scanner]
+    K[🔐 Keycloak<br/>OIDC Provider]
+    A[⚙️ TicketForge API<br/>Spring Boot]
+    D[(🗄️ PostgreSQL)]
 
-    %% Relationships
-    C -- "1. Login / Token Request" --> K
-    K -. "2. Issue JWT Access Token" .-> C
-    C -- "3. API Call + Bearer JWT" --> A
-    A -- "4. Validate Signature & Issuer" --> K
-    A <--> "5. Read/Write Entities" D
+    C -->|1. Login / Token Request| K
+    K -.->|2. Issue JWT Access Token| C
+    C -->|3. API Call + Bearer JWT| A
+    A -->|4. Validate Signature & Issuer| K
+    A <-->|5. Read/Write Entities| D
 ```
 
 ---
@@ -150,24 +147,18 @@ sequenceDiagram
     autonumber
     
     actor U as 👤 User Client
-    box rgb(40, 44, 52) TicketForge Ecosystem
-        participant API as 🌐 REST API
-        participant DB as 🗄️ PostgreSQL
-        participant QR as 🖼️ QR Generator
-    end
+    participant API as 🌐 TicketForge API
+    participant DB as 🗄️ PostgreSQL
+    participant QR as 🖼️ QR Service
     actor S as 🎫 Staff Scanner
 
     rect rgb(230, 245, 255)
     Note over U,QR: Phase 1: High-Concurrency Ticket Purchase
     
     U->>API: POST /tickets (EventId, TicketTypeId)
-    activate API
-    
     API->>DB: Query User & Event Data
-    
     Note over API,DB: Begin @Transactional
     API->>DB: PESSIMISTIC_WRITE Lock on TicketType
-    DB-->>API: Lock Acquired
     API->>DB: Check Inventory (countByTicketTypeId)
     
     alt Tickets Sold Out
@@ -179,15 +170,12 @@ sequenceDiagram
         API-->>U: 201 Created (Success)
     end
     Note over API,DB: Commit & Release Lock
-    deactivate API
     end
 
     rect rgb(240, 255, 240)
     Note over S,DB: Phase 2: Venue Validation
     
     S->>API: POST /ticket-validations {QR_CODE_DATA}
-    activate API
-    
     API->>DB: Lookup Ticket & Check Validation History
     
     alt Already Validated
@@ -196,7 +184,6 @@ sequenceDiagram
         API->>DB: Save(Validation: SUCCESS)
         API-->>S: 200 OK (Entry Granted)
     end
-    deactivate API
     end
 ```
 
