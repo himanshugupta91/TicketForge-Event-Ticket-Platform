@@ -146,44 +146,49 @@ This diagram illustrates the critical path from ticket purchase to venue validat
 sequenceDiagram
     autonumber
     
-    actor U as 👤 User Client
-    participant API as 🌐 TicketForge API
-    participant DB as 🗄️ PostgreSQL
-    participant QR as 🖼️ QR Service
-    actor S as 🎫 Staff Scanner
-
-    rect rgb(230, 245, 255)
-    Note over U,QR: Phase 1: High-Concurrency Ticket Purchase
+    actor User as 👤 Fan (Client)
+    participant API as 🚀 TicketForge API
+    participant DB as 🗄️ Database
+    participant QR as 🎨 QR Service
+    actor Staff as 🎫 Event Staff
     
-    U->>API: POST /tickets (EventId, TicketTypeId)
-    API->>DB: Query User & Event Data
-    Note over API,DB: Begin @Transactional
-    API->>DB: PESSIMISTIC_WRITE Lock on TicketType
-    API->>DB: Check Inventory (countByTicketTypeId)
+    %% Ticket Purchase Flow
+    Note over User,QR: ━ ➊ HIGH-CONCURRENCY PURCHASE FLOW ━
     
-    alt Tickets Sold Out
-        API-->>U: 400 TicketsSoldOutException
-    else Tickets Available
-        API->>DB: Save(Ticket: PURCHASED)
-        API->>QR: Generate Unique QR UUID
-        QR-->>DB: Link QR to Ticket
-        API-->>U: 201 Created (Success)
+    User->>+API: 🛒 Request Ticket (eventId, typeId)
+    API->>DB: 🔍 Fetch User & Event Config
+    
+    Note right of API: 🔒 @Transactional Boundary Starts
+    API->>+DB: 🟡 Acquire PESSIMISTIC_WRITE Lock
+    DB-->>-API: ✅ Lock Granted
+    
+    API->>DB: 🔢 Count Available Tickets
+    
+    alt ❌ Inventory Depleted
+        API-->>User: 🚫 400 Bad Request (Sold Out)
+    else ✨ Inventory Available
+        API->>DB: 💾 Save Ticket (Status: PURCHASED)
+        
+        API->>+QR: 🧱 Generate Secure UUID QR
+        QR-->>-API: 🎟️ Return codePayload
+        
+        API->>DB: 🔗 Persist QR to Ticket link
+        API-->>-User: 🎉 201 Created (Ticket Issued)
     end
-    Note over API,DB: Commit & Release Lock
-    end
-
-    rect rgb(240, 255, 240)
-    Note over S,DB: Phase 2: Venue Validation
+    Note right of API: 🔓 Transaction Commits, Lock Released
     
-    S->>API: POST /ticket-validations {QR_CODE_DATA}
-    API->>DB: Lookup Ticket & Check Validation History
+    %% Validation Flow
+    Note over Staff,DB: ━ ➋ PHYSICAL VENUE VALIDATION ━
     
-    alt Already Validated
-        API-->>S: 403 Forbidden (Ticket Already Used)
-    else Valid & Unused
-        API->>DB: Save(Validation: SUCCESS)
-        API-->>S: 200 OK (Entry Granted)
-    end
+    Staff->>+API: 📱 Scan QR (POST /validation)
+    API->>+DB: 🔎 Lookup Ticket & Validation History
+    DB-->>-API: 📄 Ticket State
+    
+    alt ⚠️ Ticket Already Used
+        API-->>Staff: 🔴 403 Forbidden (Duplicate Entry)
+    else ✅ Ticket Unused
+        API->>DB: 💾 Save Validation (Status: SUCCESS)
+        API-->>-Staff: 🟢 200 OK (Gate Opened)
     end
 ```
 
