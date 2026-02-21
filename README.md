@@ -376,7 +376,19 @@ The `UserProvisioningFilter` automatically synchronizes Keycloak users with the 
 
 ## ❓ FAQ & Interview Questions
 
-### 🏗 Architecture & System Design
+### �️ How to Explain This Project to an Interviewer
+
+**The Elevator Pitch:**
+> *"TicketForge is a secure, high-concurrency event ticketing backend I built using Spring Boot 3 and Java 21. It's designed to solve the classic 'overselling' problem during high-traffic concert ticket drops. I achieved this by implementing pessimistic database locking in PostgreSQL to guarantee atomic transactions. To ensure enterprise-grade security, I offloaded identity management to Keycloak, configuring the application strictly as an OAuth2 Resource Server."*
+
+**Key Talking Points to Highlight:**
+1. **The Core Problem Solved:** Focus on data integrity. Explain that when multiple users try to buy the last 5 tickets simultaneously, your `PESSIMISTIC_WRITE` lock ensures the tickets are never double-booked.
+2. **Security Posture:** Mention that you didn't just hardcode JWT validation. You integrated a real centralized Identity Provider (Keycloak) and wrote custom filters to seamlessly provision users locally upon their first login.
+3. **Real-World Venue Operations:** Talk about the QR code validation flow. Emphasize that you used non-sequential UUIDs for the QR payload to prevent guessing, and built a strict validation history check to prevent users from sharing screenshots of their tickets.
+
+---
+
+### �🏗 Architecture & System Design
 
 <details>
 <summary><b>1. Why use PESSIMISTIC_WRITE lock for ticket purchase?</b></summary>
