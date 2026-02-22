@@ -376,7 +376,7 @@ The `UserProvisioningFilter` automatically synchronizes Keycloak users with the 
 
 ## ❓ FAQ & Interview Questions
 
-### �️ How to Explain This Project to an Interviewer
+### �️ About Project 
 
 **The Elevator Pitch:**
 > *"TicketForge is a secure, high-concurrency event ticketing backend I built using Spring Boot 3 and Java 21. It's designed to solve the classic 'overselling' problem during high-traffic concert ticket drops. I achieved this by implementing pessimistic database locking in PostgreSQL to guarantee atomic transactions. To ensure enterprise-grade security, I offloaded identity management to Keycloak, configuring the application strictly as an OAuth2 Resource Server."*
